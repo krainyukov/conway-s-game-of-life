@@ -1,15 +1,16 @@
 #include <ncurses.h>
 #include <string.h>
 #include <stdlib.h>
-#define WIDTH 80
-#define HEIGHT 25
+#include<time.h>
+#define WIDTH 190
+#define HEIGHT 55
 
 void init_game();
 void draw_hello();
 void print_frame(int grid[HEIGHT][WIDTH]);
 void fill_with_random(int grid[HEIGHT][WIDTH]);
-int neighbours(int previous_frame[HEIGHT][WIDTH], int i, int j);
-void game_logic(int previous_frame[HEIGHT][WIDTH], int second_frame[HEIGHT][WIDTH]);
+int game_logic(int grid[HEIGHT][WIDTH], int grid1[HEIGHT][WIDTH]);
+int count(int grid[HEIGHT][WIDTH], int i, int j);
 
 int main() {
     initscr();
@@ -21,12 +22,15 @@ int main() {
 
 void init_game() {
     // int size = sizeof(int*) * HEIGHT + sizeof(int) * HEIGHT * WIDTH;
-    // int **grid = (int**)malloc(size);
-
-    // //int* first_element = (int*)(grid + HEIGHT);
- 
+    // int **grid1 = (int**)malloc(size);
+    // int* first_element = (int*)(grid1 + HEIGHT);
     int grid[HEIGHT][WIDTH];
     int grid1[HEIGHT][WIDTH];
+    for (int i = 0; i < HEIGHT; i++) {
+        for (int j = 0; j < WIDTH; j++) {
+            grid1[i][j] = 0;
+        }
+    }
     fill_with_random(grid);
     char* hello_frase = "GAME OF LIFE";
     int len_hello_frase = strlen(hello_frase);
@@ -35,15 +39,62 @@ void init_game() {
     int generation = 0;
     while ((keyboard_command = getch()) != 'q') {
         clear();
-        if ((keyboard_command = getch()) == 'd') {
-            game_logic(grid, grid1);
-            printw("generation %d", generation);
-            print_frame(grid1);
-        } else {
+        if (generation == 0) {
             print_frame(grid);
+        } else {
+            game_logic(grid, grid1);
+            for (int i = 0; i < HEIGHT; i++) {
+                for (int j = 0; j < WIDTH; j++) {
+                    grid[i][j] = grid1[i][j];
+                }
+            }
+            print_frame(grid);
+            
         }
-        
+        generation++;
+        printw("%d", generation);
     }
+}
+
+int game_logic(int grid[HEIGHT][WIDTH], int grid1[HEIGHT][WIDTH]) {
+    for (int i = 0; i < HEIGHT; i++) {
+        for (int j = 0; j < WIDTH; j++) {
+            if (grid[i][j] == 0) {
+                switch (count(grid, i, j)) {
+                case 3:
+                    grid1[i][j] = 1;
+                    break;
+                default:
+                    grid1[i][j] = 0;
+                    break;
+                }
+            } else {
+                switch (count(grid, i, j)) {
+                case 2:
+                    grid1[i][j] = 1;
+                    break;
+                case 3:
+                    grid1[i][j] = 1;
+                    break;
+                default:
+                    grid1[i][j] = 0;
+                    break;
+                }
+            }
+        }
+    }
+    return 1;
+}
+
+int count(int grid[HEIGHT][WIDTH], int i, int j) {
+    int count = 0;
+    for (int a = -1; a < 2; a++) {
+        for (int s = -1; s < 2; s++) {
+            if (grid[(i + a) % HEIGHT][(j + s) % WIDTH] == 1) count++;
+        }
+    }
+    if (grid[i][j] == 1) count--;
+    return count;
 }
 
 void draw_hello(char* hello_frase, int len_hello_frase) {
@@ -68,50 +119,22 @@ void draw_hello(char* hello_frase, int len_hello_frase) {
 void print_frame(int grid[HEIGHT][WIDTH]) {
     for (int i = 0; i < HEIGHT; i++) {
         for (int j = 0; j < WIDTH; j++) {
-            printw("%d", grid[i][j]);
+            if (grid[i][j] == 0) {
+                printw(" ");
+            } else {
+                printw("o");
+            }
         }
         printw("\n");
     }
 }
 
 void fill_with_random(int grid[HEIGHT][WIDTH]) {
+    srand(time(0));
     for (int i = 0; i < HEIGHT; i++) {
         for (int j = 0; j < WIDTH; j++) {
-            grid[i][j] = rand() % 2;
+            grid[i][j] = (rand()) % 2;
         }
     }
 }
 
-void game_logic(int previous_frame[HEIGHT][WIDTH], int second_frame[HEIGHT][WIDTH]) {
-    for (int i = 0; i < HEIGHT; i++) {
-        for (int j = 0; j < WIDTH; j++) {
-            if (previous_frame[i][j] == 0) {
-                switch (neighbours(previous_frame, i, j)) {
-                    case 3:
-                        second_frame[i][j] = 0;
-                        break;
-                    default:
-                        second_frame[i][j] = 0;
-                        break;
-                }    
-
-            }
-        }
-    }
-}
-
-int neighbours(int previous_frame[HEIGHT][WIDTH], int i, int j) {
-    int count = 0;
-    for (int a = -1; a < 2; a++) {
-        for (int b = -1; b < 2; b++) {
-            if (previous_frame[i + a][j + a] == 1) {
-                count++;
-            }    
-        }
-    }
-    if (previous_frame[i][j] == 1) {
-        printw("count %d\n", count);
-        return count - 1;
-    }
-    return count;
-}
