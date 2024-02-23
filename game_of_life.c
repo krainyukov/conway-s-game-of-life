@@ -1,7 +1,9 @@
 #include <ncurses.h>
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include<time.h>
+
 #define WIDTH 90
 #define HEIGHT 55
 
@@ -15,6 +17,10 @@ void refresh_grid(int grid[HEIGHT][WIDTH], int grid1[HEIGHT][WIDTH]);
 void draw_menu(char* hello_frase, int len_hello_frase, int* option);
 int main() {
     initscr();
+    cbreak();
+    noecho();
+    nodelay(stdscr, TRUE);
+    keypad(stdscr, TRUE);
     init_game();
     refresh();
     endwin();
@@ -40,23 +46,37 @@ void init_game() {
     int len_hello_frase = strlen(hello_frase);
     //draw_hello(hello_frase, len_hello_frase);
     int option = 1;
+    char keyboard_command = '1';
     draw_menu(hello_frase, len_hello_frase, &option);
-    char keyboard_command;
+    while((keyboard_command = getch()) != '\n' && keyboard_command != 'q') {
+        if (keyboard_command == 'y') {
+            option = 1;
+        } else if (keyboard_command == 'h') {
+            option = 2;
+        }
+        clear();
+        draw_menu(hello_frase, len_hello_frase, &option);
+    }
+    
+    
     int generation = 0;
 
     fill_with_random(grid);
-    while ((keyboard_command = getch()) != 'q') {
-        clear();
-        if (generation == 0) {
-            print_frame(grid);
-        } else {
-            game_logic(grid, grid1);
-            refresh_grid(grid, grid1);
-            print_frame(grid);
-            
+    if (option == 1) {
+        while ((keyboard_command = getch()) != 'q') {
+            clear();
+            if (generation == 0) {
+                print_frame(grid);
+            } else {
+                game_logic(grid, grid1);
+                refresh_grid(grid, grid1);
+                print_frame(grid);
+                
+            }
+            generation++;
+            printw("FRAME: %d", generation);
+            usleep(70000);
         }
-        generation++;
-        printw("FRAME: %d", generation);
     }
 }
 
@@ -127,13 +147,8 @@ int count(int grid[HEIGHT][WIDTH], int i, int j) {
 // }
 
 void draw_menu(char* hello_frase, int len_hello_frase, int* option) {
-    int star = 0;
-    if (*option == 1) {
-        star = HEIGHT / 2 + 3;
-    } else {
-        star =  HEIGHT / 2 + 5;
-    }
-    char* option1 = "random game";
+
+    char* option1 = "random  game";
     char* option2 = "set new game";
     int len_option1 = strlen(option1);
     int len_option2 = strlen(option2);
@@ -142,18 +157,18 @@ void draw_menu(char* hello_frase, int len_hello_frase, int* option) {
             if (i == HEIGHT / 2 && j == (WIDTH - len_hello_frase) / 2) {
                 printw("%s", hello_frase);
                 j = j + len_hello_frase - 1;
-            } else if (i == HEIGHT / 2 + 3 && j == (WIDTH - len_option1) / 2) {
+            } else if (*option == 2 && i == HEIGHT / 2 + 3 && j == (WIDTH - len_option1) / 2) {
                 printw("%s", option1);
                 j = j + len_option1 - 1;
-            } else if (i == HEIGHT / 2 + 5 && j == (WIDTH - len_option2) / 2) {
+            } else if (*option == 1 && i == HEIGHT / 2 + 5 && j == (WIDTH - len_option2) / 2) {
                 printw("%s", option2);
                 j = j + len_option2 - 1;
-            } else if (*option == 1 && i == star && j == (WIDTH - len_option1) / 2 - 1) {
-                printw("*%s",option1);
-                j = j + len_option1;
-            } else if (*option == 2 && i == star && j == (WIDTH - len_option2) / 2 - 1) {
-                printw("*%s", option2);
-                j = j + len_option2;
+            } else if (*option == 1 && i == HEIGHT / 2 + 3 && j == (WIDTH - len_option1) / 2 - 4) {
+                printw(">>> %s <<<",option1);
+                j = j + len_option1 + 7;
+            } else if (*option == 2 && i == HEIGHT / 2 + 5 && j == (WIDTH - len_option2) / 2 - 4) {
+                printw(">>> %s <<<", option2);
+                j = j + len_option2 + 7;
             } else {
                 printw(" ");
             }
