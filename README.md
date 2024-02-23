@@ -8,4 +8,4 @@ After launching, you will see something similar:
 
 Here just follow instructions and press 'Enter'
 And here it is!
-![Your random generated system](https://github.com/krainyukov/conway-s-game-of-life/blob/menubranch/img/img1.png?raw=true)
+![Your random generated system](https://github.com/krainyukov/conway-s-game-of-life/blob/menubranch/img/img2.png?raw=true)
