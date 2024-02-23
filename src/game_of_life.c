@@ -4,11 +4,10 @@
 #include <unistd.h>
 #include<time.h>
 
-#define WIDTH 90
+#define WIDTH 190
 #define HEIGHT 55
 
 void init_game();
-//void draw_hello(char* hello_frase, int len_hello_frase);
 void print_frame(int grid[HEIGHT][WIDTH]);
 void fill_with_random(int grid[HEIGHT][WIDTH]);
 int game_logic(int grid[HEIGHT][WIDTH], int grid1[HEIGHT][WIDTH]);
@@ -127,29 +126,11 @@ int count(int grid[HEIGHT][WIDTH], int i, int j) {
 
 /* Initial screen */
 
-// void draw_hello(char* hello_frase, int len_hello_frase) {
-//     char* press_any = "press any key to start or <q> for escape";
-//     int len_press_any = strlen(press_any);
-//     for (int i = 0; i < HEIGHT; i++) {
-//         for (int j = 0; j < WIDTH; j++) {
-//             if (i == HEIGHT / 2 && j == (WIDTH - len_hello_frase) / 2) {
-//                 printw("%s", hello_frase);
-//                 j = j + len_hello_frase - 1;
-//             } else if (i == HEIGHT / 2 + 3 && j == (WIDTH - len_press_any) / 2) {
-//                 printw("%s", press_any);
-//                 j = j + len_press_any - 1;
-//             } else {
-//                 printw(" ");
-//             }
-//         }
-//         printw("\n");
-//     }
-// }
-
 void draw_menu(char* hello_frase, int len_hello_frase, int* option) {
 
     char* option1 = "random  game";
     char* option2 = "set new game";
+    char* settings = "push y or h to manipulate";
     int len_option1 = strlen(option1);
     int len_option2 = strlen(option2);
     for (int i = 0; i < HEIGHT; i++) {
@@ -169,6 +150,9 @@ void draw_menu(char* hello_frase, int len_hello_frase, int* option) {
             } else if (*option == 2 && i == HEIGHT / 2 + 5 && j == (WIDTH - len_option2) / 2 - 4) {
                 printw(">>> %s <<<", option2);
                 j = j + len_option2 + 7;
+            } else if (i == HEIGHT - 5 && j == (WIDTH - len_option2) / 2 - 4) {
+                printw("%s", settings);
+                j = j + strlen(settings) - 1;
             } else {
                 printw(" ");
             }
